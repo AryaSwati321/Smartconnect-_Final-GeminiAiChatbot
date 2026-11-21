@@ -15,21 +15,20 @@ export default function AdminEntry() {
 }
 
 function AdminPage() {
-  const { user } = useAuth();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-sky-50 via-white to-indigo-100">
       <div className="bg-white p-10 rounded-2xl shadow-xl max-w-lg w-full text-center">
         <h2 className="text-3xl font-bold bg-gradient-to-r from-sky-600 to-indigo-600 bg-clip-text text-transparent">
-          {user?.name ? `${user.name} Dashboard` : 'Arya Swati Dashboard'}
+          Admin Dashboard
         </h2>
+
         <p className="text-gray-600 mt-3">
-          {`Welcome ${user?.name || 'Arya Swati'} — replace this with your full admin interface.`}
+          Welcome to the Smart Connect Admin Dashboard.
         </p>
       </div>
     </div>
   );
 }
-
 function AdminLogin({ onSuccess }) {
   const { login } = useAuth();
   const [email, setEmail] = useState("");

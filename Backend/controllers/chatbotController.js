@@ -1,92 +1,80 @@
+const { GoogleGenAI } = require("@google/genai");
+
+const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
+});
+
 const User = require('../models/User');
 const Booking = require('../models/Booking');
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/interactions';
 
-function buildGeminiSystemInstruction(userContext) {
-  const recentBookings = (userContext?.recentBookings || [])
-    .map((booking, index) => `${index + 1}. ${booking.serviceName} - ${booking.status}`)
-    .join('\n') || 'No active bookings.';
 
-  return `You are the Smart Connect AI support assistant.
-Help users and vendors with bookings, service tracking, payments, cancellations, reviews, safety, and account questions.
-Keep answers concise, practical, friendly, and specific to Smart Connect.
-Do not invent platform policies, prices, refunds, phone numbers, or admin actions. If unsure, ask the user to contact support.
+function buildGeminiPrompt(message, userContext) {
 
-Current user context:
-- Name: ${userContext?.name || 'Guest'}
-- Role: ${userContext?.role || 'user'}
-- Completed or closed bookings: ${userContext?.bookingCount || 0}
-- Recent active bookings:
-${recentBookings}`;
-}
+return `
+You are SmartConnect AI.
 
-function extractGeminiText(data) {
-  if (!data || typeof data !== 'object') return '';
-  if (typeof data.output_text === 'string' && data.output_text.trim()) {
-    return data.output_text.trim();
-  }
+SmartConnect is an AI Powered Hyperlocal Community Hub.
 
-  const texts = [];
-  const visit = (value, parentKey = '') => {
-    if (!value) return;
-    if (typeof value === 'string') {
-      if (['text', 'output_text'].includes(parentKey) && value.trim()) texts.push(value.trim());
-      return;
-    }
-    if (Array.isArray(value)) {
-      value.forEach((item) => visit(item, parentKey));
-      return;
-    }
-    if (typeof value === 'object') {
-      for (const [key, nested] of Object.entries(value)) {
-        visit(nested, key);
-      }
-    }
-  };
+Modules
 
-  visit(data);
-  return texts.join('\n').trim();
+• User Authentication
+• Service Booking
+• Vendor Registration
+• Vendor Dashboard
+• Booking Tracking
+• Community Posts
+• Events
+• Ratings
+• Reviews
+• Profile Management
+
+User Information
+
+Name : ${userContext.name}
+
+Role : ${userContext.role}
+
+Completed Bookings : ${userContext.bookingCount}
+
+Recent Bookings
+
+${userContext.recentBookings
+.map((b)=>`${b.serviceName} (${b.status})`)
+.join("\n")}
+
+Rules
+
+• Give short answers.
+
+• Answer professionally.
+
+• If the question is unrelated to SmartConnect,
+answer normally.
+
+Question
+
+${message}
+
+`;
 }
 
 async function generateGeminiResponse(message, userContext) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
+  try {
+    console.log("✅ Gemini API Called");
 
-  if (typeof fetch !== 'function') {
-    throw new Error('Global fetch is not available in this Node.js runtime');
+    const response = await ai.models.generateContent({
+      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      contents: buildGeminiPrompt(message, userContext),
+    });
+
+    console.log("✅ Gemini Response:", response.text);
+
+    return response.text;
+  } catch (error) {
+    console.error("Gemini Error:", error.message);
+    return null;
   }
-
-  const response = await fetch(GEMINI_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey
-    },
-    body: JSON.stringify({
-      model: GEMINI_MODEL,
-      system_instruction: buildGeminiSystemInstruction(userContext),
-      input: message,
-      generation_config: {
-        temperature: 0.4,
-        thinking_level: 'low'
-      }
-    })
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => '');
-    throw new Error(`Gemini API request failed with HTTP ${response.status}: ${errorText}`);
-  }
-
-  const data = await response.json();
-  const reply = extractGeminiText(data);
-  if (!reply) {
-    throw new Error('Gemini API returned an empty response');
-  }
-
-  return reply;
 }
 
 // Simulated AI responses with context awareness
@@ -433,9 +421,10 @@ exports.chatMessage = async (req, res) => {
     const { message } = req.body;
     const userId = req.user?.id || req.user?._id;
 
-    if (!message || !message.trim()) {
+    if (message.length > 2000) {
       return res.status(400).json({ msg: 'Message is required' });
     }
+    
 
     // Get user context
     const user = await User.findById(userId).select('name email role phone').lean();

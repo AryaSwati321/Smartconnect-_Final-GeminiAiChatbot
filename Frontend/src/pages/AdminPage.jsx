@@ -283,7 +283,7 @@ function AdminDashboard() {
           <div className="flex min-h-[calc(100vh-2rem)]">
               <aside className="hidden w-80 flex-col border-r border-slate-200/80 bg-gradient-to-b from-slate-950 via-slate-900 to-blue-950 px-5 py-6 text-slate-100 lg:flex">
               <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Smart Connect</p>
-              <h2 className="mt-2 text-2xl font-bold">{user?.name ? `${user.name} Control Room` : 'Arya Swati Control Room'}</h2>
+             <h2 className="mt-2 text-2xl font-bold">Admin Control Room</h2>
               <p className="mt-2 text-sm text-slate-300">Real-time moderation, service reliability, and growth metrics.</p>
               <nav className="mt-8 space-y-2">
                 {navItems.map((item) => (
@@ -314,7 +314,7 @@ function AdminDashboard() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                     <button onClick={() => setMenuOpen(true)} className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-700 lg:hidden">Menu</button>
-                    <div><h1 className="text-xl font-bold text-slate-900">{user?.name ? `${user.name} Dashboard` : 'Arya Swati Dashboard'}</h1><p className="text-xs text-slate-500">{new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p></div>
+                    <div><h1 className="text-xl font-bold text-slate-900">{user?.name ? `${user.name} Dashboard` : 'Admin Dashboard'}</h1><p className="text-xs text-slate-500">{new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p></div>
                   </div>
                   <div className="flex items-center gap-2"><button onClick={loadAll} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700">{loading ? "Refreshing..." : "Refresh"}</button><button onClick={logout} className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white">Logout</button></div>
                 </div>
