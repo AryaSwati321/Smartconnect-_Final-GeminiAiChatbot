@@ -1,5 +1,5 @@
 <div align="center">
-<img src="assets/banner.svg" alt="SMARTCONNECT: AI-Based Hyperlocal Community Hub" width="100%" />
+<img src="Frontend/src/assets/logo.png" alt="SMARTCONNECT: AI-Based Hyperlocal Community Hub" width="100%" />
 **Find, book, and track trusted local professionals, all within 5 km of your doorstep.**
  
 <br />
